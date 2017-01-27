@@ -1,50 +1,41 @@
-import marshal
 import sqlite3
 
 from addok.config import config
 
 
-class DocumentStorage:
+class SQLiteStore:
 
     def __init__(self, *args, **kwargs):
         self.conn = sqlite3.connect(config.SQLITE_DB_PATH)
-        cur = self.conn.cursor()
-        cur.execute('CREATE TABLE IF NOT EXISTS doc (key VARCHAR, data BLOB)')
-        cur.execute('CREATE UNIQUE INDEX IF NOT EXISTS '
-                    'doc_key_idx ON doc (key)')
-        self.conn.commit()
-        cur.close()
+        with self.conn as conn:
+            conn.execute('CREATE TABLE IF NOT EXISTS '
+                         'addok (key VARCHAR, data BLOB)')
+            conn.execute('CREATE UNIQUE INDEX IF NOT EXISTS '
+                         'addok_key_idx ON addok (key)')
 
-    def get(self, *keys):
-        cur = self.conn.cursor()
-        for key in keys:
-            cur.execute('SELECT data FROM doc WHERE key=?', (key.decode(),))
-            self.conn.commit()
-            row = cur.fetchone()
-            yield marshal.loads(row[0])
-        cur.close()
+    def fetch(self, *keys):
+        if not keys:  # Avoid invalid SQL.
+            return
+        keys = [key.decode() for key in keys]
+        # SQLite requires to pass the same number of question marks.
+        params = ','.join(['?'] * len(keys))
+        query = 'SELECT key, data FROM addok WHERE key IN ({})'.format(params)
+        with self.conn as conn:
+            cursor = conn.execute(query, keys)
+            for key, data in cursor.fetchall():
+                yield key.encode(), data
 
     def add(self, *docs):
-        cur = self.conn.cursor()
-        data = [(k, marshal.dumps(d)) for k, d in docs]
-        cur.executemany('INSERT OR IGNORE INTO doc '
-                        '(key, data) VALUES (?,?)', data)
-        self.conn.commit()
-        cur.close()
-        for key, doc in docs:
-            yield doc
+        with self.conn as conn:
+            conn.executemany('INSERT OR IGNORE INTO addok '
+                             '(key, data) VALUES (?,?)', docs)
 
-    def remove(self, *docs):
-        cur = self.conn.cursor()
-        keys = [k for k, d in docs]
-        cur.executemany('DELETE FROM doc WHERE key=?', keys)
-        self.conn.commit()
-        cur.close()
-        for key, doc in docs:
-            yield doc
+    def remove(self, *keys):
+        with self.conn as conn:
+            conn.executemany('DELETE FROM addok WHERE key=?', (keys, ))
 
 
 def preconfigure(config):
-    config.DOCUMENT_STORAGE = 'addok_sqlite.plugin.DocumentStorage'
+    config.DOCUMENT_STORE = 'addok_sqlite.plugin.SQLiteStore'
     config.SQLITE_DB_PATH = 'addok.db'
-    config.STORAGE_IMPORT_CHUNK_SIZE = 10000
+    config.BATCH_CHUNK_SIZE = 10000
