@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from multiprocessing import Lock
 
@@ -7,6 +8,9 @@ from addok.config import config
 class SQLiteStore:
 
     def __init__(self, *args, **kwargs):
+        self.init()
+
+    def init(self):
         self.conn = sqlite3.connect(config.SQLITE_DB_PATH)
         self.lock = Lock()
         with self.conn as conn:
@@ -39,6 +43,10 @@ class SQLiteStore:
         with self.conn as conn:
             conn.executemany('DELETE FROM addok WHERE key=?', (keys, ))
         self.lock.release()
+
+    def flushdb(self):
+        os.unlink(config.SQLITE_DB_PATH)
+        self.init()
 
 
 def preconfigure(config):
