@@ -27,10 +27,10 @@ class SQLiteStore:
             for key, data in cursor.fetchall():
                 yield key.encode(), data
 
-    def add(self, *docs):
+    def upsert(self, *docs):
         self.lock.acquire()
         with self.conn as conn:
-            conn.executemany('INSERT OR IGNORE INTO addok '
+            conn.executemany('INSERT OR REPLACE INTO addok '
                              '(key, data) VALUES (?,?)', docs)
         self.lock.release()
 
