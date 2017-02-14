@@ -1,12 +1,16 @@
 import sqlite3
+from multiprocessing import Lock
 
 from addok.config import config
 
 
 class SQLiteStore:
 
+
+
     def __init__(self, *args, **kwargs):
         self.conn = sqlite3.connect(config.SQLITE_DB_PATH)
+        self.lock = Lock()
         with self.conn as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS '
                          'addok (key VARCHAR, data BLOB)')
@@ -26,13 +30,17 @@ class SQLiteStore:
                 yield key.encode(), data
 
     def add(self, *docs):
+        self.lock.acquire()
         with self.conn as conn:
             conn.executemany('INSERT OR IGNORE INTO addok '
                              '(key, data) VALUES (?,?)', docs)
+        self.lock.release()
 
     def remove(self, *keys):
+        self.lock.acquire()
         with self.conn as conn:
             conn.executemany('DELETE FROM addok WHERE key=?', (keys, ))
+        self.lock.release()
 
 
 def preconfigure(config):
