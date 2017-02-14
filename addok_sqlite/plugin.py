@@ -6,8 +6,6 @@ from addok.config import config
 
 class SQLiteStore:
 
-
-
     def __init__(self, *args, **kwargs):
         self.conn = sqlite3.connect(config.SQLITE_DB_PATH)
         self.lock = Lock()
