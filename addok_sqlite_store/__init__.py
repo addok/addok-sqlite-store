@@ -50,5 +50,5 @@ class SQLiteStore:
 
 
 def preconfigure(config):
-    config.DOCUMENT_STORE_PYPATH = 'addok_sqlite.plugin.SQLiteStore'
+    config.DOCUMENT_STORE_PYPATH = 'addok_sqlite_store.SQLiteStore'
     config.SQLITE_DB_PATH = 'addok.db'

@@ -11,11 +11,11 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='addok-sqlite',
+    name='addok-sqlite-store',
     version=".".join(map(str, VERSION)),
     description="Store documents in Sqlite.",
     long_description=long_description,
-    url='https://github.com/addok/addok-sqlite',
+    url='https://github.com/addok/addok-sqlite-store',
     author='Yohan Boniface',
     author_email='yohan.boniface@data.gouv.fr',
     license='WTFPL',
@@ -32,9 +32,9 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    keywords='addok geocoding sqlite',
+    keywords='addok geocoding sqlite plugin',
     packages=find_packages(exclude=['tests']),
     extras_require={'test': ['pytest']},
     include_package_data=True,
-    entry_points={'addok.ext': ['sqlite=addok_sqlite.plugin']},
+    entry_points={'addok.ext': ['sqlite-store=addok_sqlite_store']},
 )
