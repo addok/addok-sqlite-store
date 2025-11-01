@@ -11,7 +11,10 @@ class SQLiteStore:
         self.init()
 
     def init(self):
-        self.conn = sqlite3.connect(os.environ.get('SQLITE_DB_PATH') or config.SQLITE_DB_PATH)
+        db_path = (os.environ.get('ADDOK_SQLITE_DB_PATH') or 
+                   os.environ.get('SQLITE_DB_PATH') or 
+                   config.SQLITE_DB_PATH)
+        self.conn = sqlite3.connect(db_path)
         self.lock = Lock()
         with self.conn as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS '
