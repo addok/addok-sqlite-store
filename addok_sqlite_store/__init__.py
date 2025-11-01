@@ -11,10 +11,10 @@ class SQLiteStore:
         self.init()
 
     def init(self):
-        db_path = (os.environ.get('ADDOK_SQLITE_DB_PATH') or 
-                   os.environ.get('SQLITE_DB_PATH') or 
-                   config.SQLITE_DB_PATH)
-        self.conn = sqlite3.connect(db_path)
+        self.db_path = (os.environ.get('ADDOK_SQLITE_DB_PATH') or 
+                        os.environ.get('SQLITE_DB_PATH') or 
+                        config.SQLITE_DB_PATH)
+        self.conn = sqlite3.connect(self.db_path)
         self.lock = Lock()
         with self.conn as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS '
@@ -48,7 +48,7 @@ class SQLiteStore:
         self.lock.release()
 
     def flushdb(self):
-        os.unlink(config.SQLITE_DB_PATH)
+        os.unlink(self.db_path)
         self.init()
 
 
