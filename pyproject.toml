@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "addok-sqlite-store"
+version = "1.0.1"
+description = "Store documents in SQLite for Addok."
+readme = "README.md"
+authors = [
+    {name = "Yohan Boniface", email = "yohan.boniface@data.gouv.fr"}
+]
+license = "MIT"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+keywords = ["addok", "geocoding", "sqlite", "plugin"]
+requires-python = ">=3.9"
+dependencies = [
+    "addok",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=8.3",
+    "pytest-cov~=6.1",
+    "build~=1.2",
+    "twine==6.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/addok/addok-sqlite-store"
+
+[project.entry-points."addok.ext"]
+sqlite-store = "addok_sqlite_store"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "venv*", ".venv*", "build*", "dist*"]
+
+[tool.pytest.ini_options]
+addopts = "-x"
